@@ -1,0 +1,330 @@
+```html
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Affiliate Motion Generator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                            950: '#2e1065',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .glow-effect {
+            box-shadow: 0 0 25px -5px rgba(139, 92, 246, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 border border-brand-500 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+        <span id="toast-message" class="text-sm font-medium">Berhasil disalin ke clipboard!</span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-slate-800 px-4 lg:px-8 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center glow-effect">
+                <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    AI Affiliate Motion Generator
+                    <span class="text-xs bg-brand-900/80 text-brand-300 px-2 py-0.5 rounded-full border border-brand-700/50">Gemini Vision</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Ubah Foto Produk Jadi Prompt Video TikTok Affiliate Profesional</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="openHistoryModal()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-medium text-slate-300 transition-colors">
+                <i data-lucide="history" class="w-4 h-4 text-brand-400"></i>
+                <span class="hidden sm:inline">Riwayat</span>
+            </button>
+            <button onclick="resetApp()" class="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-xs font-semibold text-white transition-all shadow-lg shadow-brand-600/20">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Buat Baru</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Left Column: Input & Settings (5 Cols) -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            
+            <!-- Upload Card -->
+            <div class="glass-panel rounded-2xl p-6 glow-effect">
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i data-lucide="image" class="w-4 h-4 text-brand-400"></i>
+                    1. Unggah Gambar Produk
+                </h2>
+
+                <!-- Dropzone -->
+                <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-6 text-center cursor-pointer transition-all bg-slate-900/50 hover:bg-slate-900/80 relative overflow-hidden group">
+                    <input type="file" id="file-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect(event)">
+                    
+                    <div id="upload-placeholder" class="flex flex-col items-center justify-center gap-3 py-6">
+                        <div class="w-14 h-14 rounded-2xl bg-brand-950/80 border border-brand-800/50 flex items-center justify-center text-brand-400 group-hover:scale-110 transition-transform">
+                            <i data-lucide="upload-cloud" class="w-7 h-7"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-slate-200">Seret & letakkan gambar di sini</p>
+                            <p class="text-xs text-slate-400 mt-1">atau klik untuk telusuri file (Jam, Baju, Tas, Skincare, dll)</p>
+                        </div>
+                        <span class="text-[10px] text-brand-300/80 bg-brand-950/60 px-3 py-1 rounded-full border border-brand-800/40">PNG, JPG, WEBP hingga 10MB</span>
+                    </div>
+
+                    <!-- Image Preview Container -->
+                    <div id="preview-container" class="hidden relative w-full h-64 rounded-lg overflow-hidden bg-slate-950 flex items-center justify-center">
+                        <img id="image-preview" src="" alt="Preview Produk" class="max-h-full max-w-full object-contain">
+                        <button type="button" onclick="clearImage(event)" class="absolute top-2 right-2 bg-slate-900/80 hover:bg-red-600/80 text-white p-2 rounded-lg backdrop-blur-md transition-colors z-20">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motion Options Card -->
+            <div class="glass-panel rounded-2xl p-6">
+                <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
+                    2. Pengaturan Video & Gerakan
+                </h2>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Gaya Gerakan Utama</label>
+                        <select id="motion-style" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-brand-500 transition-colors">
+                            <option value="natural">Gerakan Natural & Realistis (Rekomendasi)</option>
+                            <option value="slow-motion">Slow Motion Halus</option>
+                            <option value="zoom-in">Zoom In Perlahan ke Detail Produk</option>
+                            <option value="zoom-out">Zoom Out Cinematic</option>
+                            <option value="hand-movement">Gerakan Tangan Interaktif</option>
+                            <option value="model-showcase">Gerakan Model Profesional</option>
+                            <option value="cinematic-rotation">Rotasi & Sudut Kamera Sinematik</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1.5">Durasi Video TikTok</label>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button type="button" onclick="setDuration(5)" id="dur-5" class="duration-btn py-2 px-3 rounded-xl border border-brand-500 bg-brand-950/60 text-brand-300 text-xs font-semibold transition-all">5 Detik</button>
+                            <button type="button" onclick="setDuration(8)" id="dur-8" class="duration-btn py-2 px-3 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 text-xs font-semibold hover:border-slate-700 transition-all">8 Detik</button>
+                            <button type="button" onclick="setDuration(10)" id="dur-10" class="duration-btn py-2 px-3 rounded-xl border border-slate-800 bg-slate-900 text-slate-400 text-xs font-semibold hover:border-slate-700 transition-all">10 Detik</button>
+                        </div>
+                    </div>
+
+                    <!-- Strict Preservation Notice -->
+                    <div class="bg-amber-950/20 border border-amber-900/30 rounded-xl p-3 flex items-start gap-2.5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+                        <p class="text-[11px] text-amber-200/80 leading-relaxed">
+                            <strong class="text-amber-300">Aturan Ketat AI:</strong> Bentuk, warna, background, logo, merek, tulisan, dan pakaian model dijamin 100% aman tanpa perubahan. Hanya gerakan alami yang ditambahkan.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <button id="generate-btn" onclick="generateMotion()" disabled class="w-full mt-6 py-3.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+                    <i data-lucide="wand-2" class="w-5 h-5"></i>
+                    <span>Analisis & Buat Prompt AI</span>
+                </button>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Results Dashboard (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-6">
+            
+            <!-- Loading State Box -->
+            <div id="loading-box" class="hidden glass-panel rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4 glow-effect">
+                <div class="relative w-16 h-16">
+                    <div class="absolute inset-0 rounded-full border-4 border-brand-900 animate-pulse"></div>
+                    <div class="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"></div>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold text-white" id="loading-status-title">Gemini AI Sedang Menganalisis Gambar...</h3>
+                    <p class="text-xs text-slate-400 mt-1" id="loading-status-desc">Mendeteksi jenis produk, warna, posisi tangan, dan menyusun prompt gerakan video 9:16.</p>
+                </div>
+            </div>
+
+            <!-- Empty State Box -->
+            <div id="empty-box" class="glass-panel rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4 border-dashed border-slate-800">
+                <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500">
+                    <i data-lucide="video" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-semibold text-slate-300">Belum Ada Hasil Generate</h3>
+                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Unggah foto produk Anda di sebelah kiri dan klik tombol "Analisis & Buat Prompt AI" untuk mulai.</p>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="results-container" class="hidden flex flex-col gap-6">
+                
+                <!-- Global Action Bar -->
+                <div class="glass-panel rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-xs font-medium text-emerald-400">Analisis Berhasil & Siap Digunakan</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button onclick="copyAll()" class="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition-all flex items-center gap-1.5 shadow-md shadow-brand-600/20">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Salin Semua</span>
+                        </button>
+                        <button onclick="regenerateMotion()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors flex items-center gap-1.5">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span>Buat Ulang Gerakan</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- A. Hasil Deteksi Gambar -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-semibold text-brand-400 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-4 h-4"></i>
+                            A. Hasil Deteksi AI Vision
+                        </h3>
+                    </div>
+                    <div id="detection-content" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- B. Prompt Gerakan Video -->
+                <div class="glass-panel rounded-2xl p-5 relative group">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-semibold text-brand-400 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="video" class="w-4 h-4"></i>
+                            B. Prompt Gerakan Video (Rasio 9:16)
+                        </h3>
+                        <button onclick="copyText('prompt-text', 'Prompt video berhasil disalin!')" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Salin Prompt</span>
+                        </button>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 relative">
+                        <p id="prompt-text" class="text-xs text-slate-200 leading-relaxed font-mono select-all"></p>
+                    </div>
+                </div>
+
+                <!-- C. Judul Promosi TikTok -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-semibold text-brand-400 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="heading" class="w-4 h-4"></i>
+                            C. Judul Promosi TikTok
+                        </h3>
+                        <button onclick="copyText('title-text', 'Judul berhasil disalin!')" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Salin Judul</span>
+                        </button>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5 flex items-center justify-between gap-3">
+                        <p id="title-text" class="text-sm font-semibold text-white"></p>
+                    </div>
+                </div>
+
+                <!-- D. Hashtag Otomatis -->
+                <div class="glass-panel rounded-2xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-semibold text-brand-400 uppercase tracking-wider flex items-center gap-2">
+                            <i data-lucide="hash" class="w-4 h-4"></i>
+                            D. Hashtag Otomatis
+                        </h3>
+                        <button onclick="copyText('hashtag-text', 'Hashtag berhasil disalin!')" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Salin Hashtag</span>
+                        </button>
+                    </div>
+                    <div class="bg-slate-950/80 border border-slate-800/80 rounded-xl p-3.5">
+                        <p id="hashtag-text" class="text-xs font-mono text-brand-300 leading-relaxed"></p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="glass-panel max-w-2xl w-full max-h-[85vh] rounded-2xl flex flex-col overflow-hidden border border-slate-700">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i data-lucide="history" class="w-4 h-4 text-brand-400"></i>
+                    Riwayat Generate Prompt & Gambar
+                </h3>
+                <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="history-list" class="p-4 overflow-y-auto flex-1 space-y-3">
+                <!-- Populated by JS -->
+            </div>
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50 flex justify-end">
+                <button onclick="clearHistory()" class="px-3 py-1.5 rounded-lg bg-red-950/40 border border-red-900/50 text-red-400 text-xs font-medium hover:bg-red-900/40 transition-colors">
+                    Hapus Semua Riwayat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="glass-panel border-t border-slate-800 py-4 text-center text-xs text-slate-500 mt-auto">
+        AI Affiliate Motion Generator • Powered by Gemini AI • 100% Original Image Preservation
+    </footer>
+
+    <!-- Script Application Logic -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        let currentImageBase64 = null;
+        let selectedDuration = 5;
+        let currentAnalysisData = null;
+
+        // Set Duration Button state
+        function setDuration(dur) {
+                                                                            
